@@ -1,0 +1,8 @@
+out/
+cache/
+.vs/
+__pycache__/
+Python/.mypy_cache
+Python/tidyCache.txt
+
+CMakeSettings.json
