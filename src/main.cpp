@@ -1,5 +1,6 @@
 #include <iostream>
 #include "LockHunter.h"
+#include <codecvt>
 
 void clearConsole() {
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -17,12 +18,35 @@ void clearConsole() {
 	SetConsoleCursorPosition(hConsole, topLeft);
 }
 
-int main() {
+std::wstring utf8ToWstring(const std::string& str) {
+	if (str.empty())
+		return std::wstring();
+
+	int sizeNeeded = MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), nullptr, 0);
+	std::wstring wstr(sizeNeeded, 0);
+	MultiByteToWideChar(CP_UTF8, 0, &str[0], (int)str.size(), &wstr[0], sizeNeeded);
+
+	return wstr;
+}
+
+int main(int argc, char* argv[]) {
 	clearConsole();
 
 	try {
-		// Initialize the file path
-		const std::wstring filePath = L"" RESOURCES_PATH "test.txt";
+		std::wstring filePath;
+
+		if (argc > 1) {
+			// Use the dropped file path
+			filePath = utf8ToWstring(argv[1]);
+		} else {
+
+            #if !defined(NDEBUG) || defined(_DEBUG)
+			filePath = L"" RESOURCES_PATH "test.txt";
+			#else
+			std::cerr << "Error please input some file\n";
+			return EXIT_FAILURE;
+			#endif
+		}
 
 		// Create an instance of LockHunter
 		LockHunter lockHunter(filePath);

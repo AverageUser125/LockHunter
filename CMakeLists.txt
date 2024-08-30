@@ -30,10 +30,7 @@ if(MSVC)
     set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
     # Show all warnings, but stupid ones
-    add_compile_options(/Wall /EHsc)
-
-    # Enable SIMD optimizations and make sure MSVC ain't stupid
-    add_compile_options(/arch:AVX2)
+    add_compile_options(/W4 /EHsc /arch:AVX2)
 
     # Disable CRT secure warnings
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
@@ -48,8 +45,8 @@ endif()
 project("${PROJECT_NAME}")
 
 # .clang-tidy stuff
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-add_definitions(-DSOME_DEFINITION)
+# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+# add_definitions(-DSOME_DEFINITION)
 
 # Add source files recursively from the src directory
 file(GLOB_RECURSE MY_SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
@@ -78,18 +75,3 @@ else()
     target_compile_definitions(${PROJECT_NAME} PUBLIC RESOURCES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/resources/")
     target_compile_definitions(${PROJECT_NAME} PUBLIC PRODUCTION_BUILD=0) 
 endif()
-
-
-set(CLANG_TIDY_EXE "${CMAKE_CURRENT_SOURCE_DIR}/Python/clang_tidy_cache.bat")
-if (CLANG_TIDY_EXE)
-
-    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
-    set(DO_CLANG_TIDY
-        "${CLANG_TIDY_EXE}"
-        "-p=${CMAKE_CURRENT_SOURCE_DIR}/out/build/x64-Debug"
-    )
-    set_target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${DO_CLANG_TIDY}")
-else()
-    message(STATUS "clang-tidy not found.")
-endif()
-
